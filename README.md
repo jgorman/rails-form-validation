@@ -55,8 +55,13 @@ Here is a Rails form example using the default configuration values.
 
 You can specify the input [`invalid`] and error [`error`] element class names.
 
-You can override the default error element template
-[`<span class="{error}"><br>{message}</span>`]. The controller will
+You can override the default error element template.
+
+```html
+<span class="{error}"><br>{message}</span>
+```
+
+The controller will
 replace `{error}` with the error class name and `{message}` with the
 validation message. The error element will be inserted right after the
 `<input/select/textarea>` element. The error element should include
@@ -94,7 +99,7 @@ Here is the form configured with the default values in HTML.
 >
 ```
 
-## Client Validation Setup
+## Client Side Validation Setup
 
 Add [stimulus-form-validation](https://github.com/jgorman/stimulus-form-validation)
 to package.json and register it with
@@ -148,7 +153,7 @@ The one remaining mystery is that after correcting an error, clicking
 the Submit button clears the error but does not also trigger the submit.
 Let me know if you know why.
 
-## Rails Server Validation Setup
+## Rails Server Side Validation Setup
 
 ### 1. Add the 'turbolinks_render' gem to the Gemfile.
 
@@ -162,7 +167,7 @@ I improved the server validation error tagging function to
 display multiple errors under their matching invalid fields.
 Add this file to config/initializer/form_errors.rb
 
-```js
+```ruby
 ActionView::Base.field_error_proc = Proc.new do |html_tag, instance_tag|
   fragment = Nokogiri::HTML.fragment(html_tag)
   field = fragment.at('input,select,textarea')
@@ -173,16 +178,13 @@ ActionView::Base.field_error_proc = Proc.new do |html_tag, instance_tag|
   errors = model.errors[field_name]
   field_errors = errors.map { |error| "#{field_title} #{error}" }.join(', ')
 
-  html = if field
-           field['class'] = "#{field['class']} invalid"
-           html = <<-HTML
-      #{fragment.to_s}
-      <p class="error">#{field_errors}</p>
-           HTML
-           html
-         else
-           html_tag
-         end
+  html =
+    if field
+      field['class'] = "#{field['class']} invalid"
+      "#{fragment.to_s} <span class=\"error\"><br>#{field_errors}</span>"
+    else
+      html_tag
+    end
 
   html.html_safe
 end
