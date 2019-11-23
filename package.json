@@ -1,11 +1,12 @@
 {
   "name": "stimulus-form-validation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Stimulus controller for form validation under Turbolinks.",
   "keywords": [
     "stimulus",
     "form",
     "validation",
+    "rails",
     "turbolinks"
   ],
   "homepage": "https://github.com/jgorman/stimulus-form-validation#readme",
@@ -24,7 +25,7 @@
   "license": "MIT",
   "scripts": {
     "build": "babel src --out-dir dist --presets @babel/preset-env --plugins=@babel/proposal-class-properties",
-    "prepublish": "yarn run build"
+    "prepare": "yarn run build"
   },
   "main": "dist/index.js",
   "dependencies": {

@@ -31,6 +31,7 @@ messages and then any server side validation messages.
 
 ![HTML validation demo](images/form-validation.gif)
 
+
 ## Configuration Examples
 
 Here is a Rails form example using the default configuration values.
@@ -99,6 +100,7 @@ Here is the form configured with the default values in HTML.
 >
 ```
 
+
 ## Client Side Validation Setup
 
 Add [stimulus-form-validation](https://github.com/jgorman/stimulus-form-validation)
@@ -125,6 +127,7 @@ import Form from 'stimulus-form-validation'
 application.register('form', Form)
 ```
 
+
 ## Integration with Rails 5 and 6 Server Side Validations
 
 Server side validations are not properly supported under Rail 5 and 6.
@@ -142,16 +145,12 @@ on [Form validations with HTML5 and modern Rails](
 https://www.jorgemanrubia.com/2019/02/16/form-validations-with-html5-and-modern-rails/
 )
 
-This controller was extracted from Jorge's [rails-form-validations-example](
+This form validation controller was extracted from Jorge's [rails-form-validations-example](
   https://github.com/jorgemanrubia/rails-form-validations-example/blob/master/app/javascript/controllers/form_controller.js
 )
 
-I cleaned up a few things and made it more configurable. I am open to
-feature suggestions and bug reports.
+I added the configuration options.
 
-The one remaining mystery is that after correcting an error, clicking
-the Submit button clears the error but does not also trigger the submit.
-Let me know if you know why.
 
 ## Rails Server Side Validation Setup
 
@@ -168,24 +167,25 @@ display multiple errors under their matching invalid fields.
 Add this file to config/initializer/form_errors.rb
 
 ```ruby
-ActionView::Base.field_error_proc = Proc.new do |html_tag, instance_tag|
-  fragment = Nokogiri::HTML.fragment(html_tag)
-  field = fragment.at('input,select,textarea')
+ActionView::Base.field_error_proc =
+  Proc.new do |html_tag, instance_tag|
+    fragment = Nokogiri::HTML.fragment(html_tag)
+    field = fragment.at('input,select,textarea')
 
-  model = instance_tag.object
-  field_name = instance_tag.instance_variable_get(:@method_name)
-  field_title = field_name.titleize
-  errors = model.errors[field_name]
-  field_errors = errors.map { |error| "#{field_title} #{error}" }.join(', ')
+    model = instance_tag.object
+    field_name = instance_tag.instance_variable_get(:@method_name)
+    field_title = field_name.titleize
+    errors = model.errors[field_name]
+    field_errors = errors.map { |error| "#{field_title} #{error}" }.join(', ')
 
-  html =
-    if field
-      field['class'] = "#{field['class']} invalid"
-      "#{fragment.to_s} <span class=\"error\"><br>#{field_errors}</span>"
-    else
-      html_tag
-    end
+    html =
+      if field
+        field['class'] = "#{field['class']} invalid"
+        "#{fragment.to_s} <span class=\"error\"><br>#{field_errors}</span>"
+      else
+        html_tag
+      end
 
-  html.html_safe
-end
+    html.html_safe
+  end
 ```
