@@ -1,21 +1,21 @@
 {
-  "name": "stimulus-form-validation",
-  "version": "1.0.2",
-  "description": "A Stimulus controller for form validation under Turbolinks.",
+  "name": "rails-form-validation",
+  "version": "1.0.0",
+  "description": "Rails form validation stimulus controller.",
   "keywords": [
-    "stimulus",
+    "rails",
     "form",
     "validation",
-    "rails",
+    "stimulus",
     "turbolinks"
   ],
-  "homepage": "https://github.com/jgorman/stimulus-form-validation#readme",
+  "homepage": "https://github.com/jgorman/rails-form-validation#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jgorman/stimulus-form-validation.git"
+    "url": "https://github.com/jgorman/rails-form-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/jgorman/stimulus-form-validation/issues"
+    "url": "https://github.com/jgorman/rails-form-validation/issues"
   },
   "author": {
     "name": "John Gorman",

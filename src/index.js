@@ -2,7 +2,7 @@ import { Controller } from 'stimulus'
 
 /*
  * HTML5 Client Side Form Validation Stimulus Controller
- * https://github.com/jgorman/stimulus-form-validation.git
+ * https://github.com/jgorman/rails-form-validation.git
  *
  * Example:
  *
@@ -20,20 +20,31 @@ import { Controller } from 'stimulus'
 
 */
 
-const template = '<span class="{error}"><br>{message}</span>'
+const config = {
+  error: 'error',
+  invalid: 'invalid',
+  template: '<span class="{error}"><br>{message}</span>',
+  debug: 'false',
+}
 
 export default class extends Controller {
+  static config(options = {}) {
+    Object.assign(config, options)
+  }
+
   initialize() {
-    this.invalid = this.data.get('invalid') || 'invalid'
-    this.error = this.data.get('error') || 'error'
-    this.template = this.data.get('template') || template
-    const debug_s = (this.data.get('debug') || 'false').toLowerCase()
+    this.error = this.data.get('error') || config.error
+    this.invalid = this.data.get('invalid') || config.invalid
+    this.template = this.data.get('template') || config.template
+    const debug_s = (this.data.get('debug') || config.debug)
+      .toString()
+      .toLowerCase()
     this.debug = !['false', 'f', 'off', '0', ''].includes(debug_s)
 
     this.log('=== initialize', {
       form: this.element,
-      invalid: this.invalid,
       error: this.error,
+      invalid: this.invalid,
       template: this.template,
       debug: this.debug,
     })

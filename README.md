@@ -1,12 +1,25 @@
-## HTML5 Client Side Form Validation Stimulus Controller
+## Rails 5 and 6 Form Validation
 
-A [Stimulus](https://github.com/stimulusjs/stimulus) controller for
-improved HTML 5 client side form validation. It works with or without
-Rails, with or without [Turbolinks](https://github.com/turbolinks/turbolinks),
-with or without data-remote Ajax form submission and even
-with or without any Javascript running.
+Read on for a complete solution for integrating Rails server side model
+validations with client side browser HTML5 validations
 
-- It disables the validation system with the attribute novalidate.
+Rails 5 and 6 server side ActiveRecord model validations under Turbolinks 5
+are broken and do not automatically render the error messages to the user
+without a workaround.
+
+This package contains a [Stimulus](https://github.com/stimulusjs/stimulus)
+controller for improved HTML 5 client side form validation error display.
+
+It is useful in any environment and it plays well with the recommended
+Rails ActiveRecord model validation error display workaround documented below.
+
+This stimulus controller works with or without Rails, with or without
+[Turbolinks](https://github.com/turbolinks/turbolinks) running,
+with or without data-remote Ajax form submission enabled, and falls back
+gracefully to the default browser HTML 5 form validations when
+Javascript is disabled.
+
+- It disables the HTML 5 validation system with the attribute `novalidate`.
   This will still let us use the API, but it will stop showing native
   validation messages.
 
@@ -17,24 +30,25 @@ with or without any Javascript running.
   This works with both Rails `data-remote="true"` Ajax form submission and
   regular full page load form submission.
 
-- It marks invalid fields with class .invalid. This allows us to integrate
-  smoothly with server side validations. More on this below.
+- It marks invalid fields with the class `.invalid`. This allows us to
+  integrate smoothly with server side validation errors.
 
-- It shows native error messages with a custom field .error element after
-  each invalid input field.
+- It shows native error messages by inserting a customizable error element
+  with class `.error` after each invalid input field.
+  This matches the format for showing server
+  side errors so the user sees a consistent feedback display.
 
-Read on below about how to smoothly integrate client side and
-server side validations under Rails 5 and 6.
 
-The new form validations look like this, showing the client side validation
-messages and then any server side validation messages.
+## Example
+
+The new form validations look like this, first showing any client side
+validation messages until they are fixed, and then any server side
+validation messages.
 
 ![HTML validation demo](images/form-validation.gif)
 
-
-## Configuration Examples
-
-Here is a Rails form example using the default configuration values.
+Here is the example form using Rails `form_with` that links to the
+`form` controller.
 
 ```erb
 <%= form_with(model: @article, data: { controller: 'form' }) do |form| %>
@@ -54,27 +68,59 @@ Here is a Rails form example using the default configuration values.
 <% end %>
 ```
 
-You can specify the input [`invalid`] and error [`error`] element class names.
 
-You can override the default error element template.
+## Configuration Settings
+
+### - `invalid` -
+
+The `invalid` setting specifies the class that gets added to an input, select,
+or textarea element containing an invalid value. It defaults to `invalid`
+but can be set to any class name.
+
+```html
+<input required="required" type="text"
+  name="article[title]" id="article_title"
+  class="invalid">
+```
+
+### - `error` -
+
+The `error` setting specifies the class of an error element that gets added
+after an input element containing an invalid value.
+It defaults to `error` but can be set to any class name.
+
+``` html
+<span class="error"><br>Please fill out this field.</span>
+```
+
+### - `template` -
+
+You can specify the error element that gets added after input elements
+containing an invalid value. Here is the default error element template.
 
 ```html
 <span class="{error}"><br>{message}</span>
 ```
 
-The controller will
-replace `{error}` with the error class name and `{message}` with the
-validation message. The error element will be inserted right after the
-`<input/select/textarea>` element. The error element should include
-the configured error element class name so that the error message can be
-removed when the input is corrected.
+The controller will replace `{error}` with the error class name and
+`{message}` with the field validation message(s).
+
+The error element should include the error element class name so that
+the error message can be removed when the input is corrected.
+
+### - `debug` -
 
 You can turn on console log debugging messages to see what is happening
-in the field by field validation process.
-Set `data-form-debug="true"` or any value except
+during the field by field validation process.
+To turn on logging set `debug` to `'true'` or any value except
 `['false', 'f', 'off', '0', '']`.
 
-Here is how to set each configuration value from Rails.
+
+## Per Form Configuration Examples
+
+You can customize the configuration values both globally and per form.
+
+Here is how to set the form configuration values from within Rails.
 
 ```erb
 <%= form_with(model: @article, data: {
@@ -86,7 +132,8 @@ Here is how to set each configuration value from Rails.
     }) do |form| %>
 ```
 
-Here is the form configured with the default values in HTML.
+Here is a form configured with the default values in HTML to show
+configuration outside of Rails.
 
 ```html
 <form
@@ -103,28 +150,33 @@ Here is the form configured with the default values in HTML.
 
 ## Client Side Validation Setup
 
-Add [stimulus-form-validation](https://github.com/jgorman/stimulus-form-validation)
+Add [rails-form-validation](https://github.com/jgorman/rails-form-validation)
 to package.json and register it with
 [Stimulus](https://github.com/stimulusjs/stimulus).
 
+You can set the application global defaults if you like or use the built in
+configuration values.
+
 ```
-yarn add stimulus-form-validation
+yarn add rails-form-validation
 ```
 
 ```js
 // Stimulus setup.
 import { Application } from 'stimulus'
 const application = Application.start()
-// Uncomment to import your custom stimulus controllers:
-/*
-import { definitionsFromContext } from 'stimulus/webpack-helpers'
-const controllers = require.context('../controllers', true, /\.js$/)
-application.load(definitionsFromContext(controllers))
-*/
 
-// Register the stimulus-form-validation controller.
-import Form from 'stimulus-form-validation'
+// Register the form controller.
+import Form from 'rails-form-validation'
 application.register('form', Form)
+
+// You can optionally set up application global defaults.
+Form.config({
+  error: 'global-default-error-element-class-name',
+  invalid: 'global-default-invalid-input-class-name',
+  template: '<span class="{error}"><br>Global default {message}</span>',
+  debug: 'turn-on-console-debug-logging-globally',
+})
 ```
 
 
@@ -145,16 +197,10 @@ on [Form validations with HTML5 and modern Rails](
 https://www.jorgemanrubia.com/2019/02/16/form-validations-with-html5-and-modern-rails/
 )
 
-This form validation controller was extracted from Jorge's [rails-form-validations-example](
-  https://github.com/jorgemanrubia/rails-form-validations-example/blob/master/app/javascript/controllers/form_controller.js
-)
-
-I added the configuration options.
-
 
 ## Rails Server Side Validation Setup
 
-### 1. Add the 'turbolinks_render' gem to the Gemfile.
+### 1. Add Jorge's `turbolinks_render` gem to the Gemfile.
 
 ```ruby
 gem 'turbolinks_render'
@@ -162,11 +208,22 @@ gem 'turbolinks_render'
 
 ### 2. Tag the form HTML with the server validation messages.
 
-I improved the server validation error tagging function to
-display multiple errors under their matching invalid fields.
-Add this file to config/initializer/form_errors.rb
+Add this file to `config/initializers/form_errors.rb` and set
+the configuration values to match the client side settings.
 
 ```ruby
+# Insert model validation error messages after the input elements.
+#
+# Add this file to config/initializers/form_errors.rb
+#
+# You can configure these values.
+
+config = {
+  error: 'error',
+  invalid: 'invalid',
+  template: '<span class="{error}"><br>{message}</span>'
+}
+
 ActionView::Base.field_error_proc =
   Proc.new do |html_tag, instance_tag|
     fragment = Nokogiri::HTML.fragment(html_tag)
@@ -180,8 +237,13 @@ ActionView::Base.field_error_proc =
 
     html =
       if field
-        field['class'] = "#{field['class']} invalid"
-        "#{fragment.to_s} <span class=\"error\"><br>#{field_errors}</span>"
+        field['class'] = "#{field['class']} #{config[:invalid]}"
+        err =
+          config[:template].gsub('{error}', config[:error]).gsub(
+            '{message}',
+            field_errors
+          )
+        "#{fragment.to_s} #{err}"
       else
         html_tag
       end
